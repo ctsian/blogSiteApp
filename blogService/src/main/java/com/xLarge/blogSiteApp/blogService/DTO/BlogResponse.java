@@ -1,20 +1,23 @@
-package com.xLarge.blogSiteApp.blogService.Entity;
-
-import jakarta.persistence.*;
+package com.xLarge.blogSiteApp.blogService.DTO;
 
 import java.time.LocalDateTime;
 
-@Entity
-public class Blog {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class BlogResponse {
+
     private Long id;
     private String title;
-
-    @Column(length = 10000)
     private String content;
-    private String author;
+    private String authorUsername;
     private LocalDateTime createdAt;
+
+    public BlogResponse(Long id, String title, String content,
+                        String authorUsername, LocalDateTime createdAt) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.authorUsername = authorUsername;
+        this.createdAt = createdAt;
+    }
 
     public Long getId() {
         return id;
@@ -40,12 +43,12 @@ public class Blog {
         this.content = content;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getAuthorUsername() {
+        return authorUsername;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthorUsername(String authorUsername) {
+        this.authorUsername = authorUsername;
     }
 
     public LocalDateTime getCreatedAt() {
