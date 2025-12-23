@@ -1,30 +1,31 @@
 import { useEffect, useState } from "react";
-import { getBlogs, getBlogsByAuthor, getBlogsByCategory } from "../services/blogService";
-import { Container, Typography, Box, Avatar, Chip, TextField, Button, Stack } from "@mui/material";
+import { getBlogsByAuthor, getTrendingBlogs, getFeaturedBlogs } from "../services/blogService";
+import { Container, Typography, Box, Avatar, Chip, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { Article } from "@mui/icons-material";
 import { getUsername, isAuthenticated } from "../utils/authUtil";
+import { useLocation } from "react-router-dom";
 
 export default function BlogList() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [categoryInput, setCategoryInput] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [view, setView] = useState("all"); // all | mine
+  const location = useLocation();
+  const initialTab = location.state?.tab || "trending";
+  const [tab, setTab] = useState(initialTab); // trending | featured | yours
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       try {
-        if (view === "mine" && getUsername()) {
+        if (tab === "yours" && getUsername()) {
           const res = await getBlogsByAuthor(getUsername());
           setBlogs(res.data);
-        } else if (categoryFilter.trim()) {
-          const res = await getBlogsByCategory(categoryFilter.trim());
+        } else if (tab === "featured" && isAuthenticated() && getUsername()) {
+          const res = await getFeaturedBlogs();
           setBlogs(res.data);
         } else {
-          const res = await getBlogs();
+          const res = await getTrendingBlogs();
           setBlogs(res.data);
         }
       } catch (err) {
@@ -36,7 +37,7 @@ export default function BlogList() {
     };
 
     fetch();
-  }, [categoryFilter, view]);
+  }, [tab]);
 
   const calculateReadingTime = (content) => {
     const wordsPerMinute = 200;
@@ -99,55 +100,39 @@ export default function BlogList() {
               letterSpacing: "-0.02em"
             }}
           >
-            {isAuthenticated() && getUsername() ? `Latest Stories for ${getUsername()}` : "Latest Stories"}
+            {tab === "trending" && "Trending"}
+            {tab === "featured" && "Featured"}
+            {tab === "yours" && (isAuthenticated() && getUsername() ? `Your blogs` : "Your blogs")}
           </Typography>
           <Typography sx={{ color: "#6B6B6B", fontSize: "18px" }}>
-            Discover and share knowledge
+            {tab === "trending" && "Most loved and recent articles across the community"}
+            {tab === "featured" && "Stories from writers you follow"}
+            {tab === "yours" && "Everything you have published"}
           </Typography>
-          <Stack direction={{ xs: "column", sm: "row" }} gap={2} sx={{ mt: 3 }}>
-            <TextField
-              placeholder="Filter by category"
-              value={categoryInput}
-              onChange={(e) => setCategoryInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setCategoryFilter(categoryInput);
-                }
-              }}
-              size="small"
-              sx={{
-                minWidth: { xs: "100%", sm: 260 },
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "10px",
-                  backgroundColor: "#ffffff",
-                }
-              }}
-            />
-            <Stack direction="row" gap={1}>
+          <Stack direction="row" gap={1} sx={{ mt: 3 }}>
+            <Button
+              variant={tab === "trending" ? "contained" : "outlined"}
+              onClick={() => setTab("trending")}
+              sx={{ textTransform: "none", backgroundColor: tab === "trending" ? "#242424" : undefined, "&:hover": { backgroundColor: tab === "trending" ? "#000000" : undefined } }}
+            >
+              Trending
+            </Button>
+            <Button
+              variant={tab === "featured" ? "contained" : "outlined"}
+              onClick={() => setTab("featured")}
+              sx={{ textTransform: "none", backgroundColor: tab === "featured" ? "#242424" : undefined, "&:hover": { backgroundColor: tab === "featured" ? "#000000" : undefined } }}
+            >
+              Featured
+            </Button>
+            {isAuthenticated() && (
               <Button
-                variant={view === "all" ? "contained" : "outlined"}
-                onClick={() => setView("all")}
-                sx={{ textTransform: "none", backgroundColor: view === "all" ? "#242424" : undefined, "&:hover": { backgroundColor: view === "all" ? "#000000" : undefined } }}
+                variant={tab === "yours" ? "contained" : "outlined"}
+                onClick={() => setTab("yours")}
+                sx={{ textTransform: "none", backgroundColor: tab === "yours" ? "#242424" : undefined, "&:hover": { backgroundColor: tab === "yours" ? "#000000" : undefined } }}
               >
-                All
+                Your blogs
               </Button>
-              {isAuthenticated() && (
-                <Button
-                  variant={view === "mine" ? "contained" : "outlined"}
-                  onClick={() => setView("mine")}
-                  sx={{ textTransform: "none", backgroundColor: view === "mine" ? "#242424" : undefined, "&:hover": { backgroundColor: view === "mine" ? "#000000" : undefined } }}
-                >
-                  My blogs
-                </Button>
-              )}
-              <Button
-                variant="text"
-                onClick={() => { setCategoryInput(""); setCategoryFilter(""); setView("all"); }}
-                sx={{ textTransform: "none" }}
-              >
-                Reset
-              </Button>
-            </Stack>
+            )}
           </Stack>
         </Box>
 

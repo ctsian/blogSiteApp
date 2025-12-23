@@ -23,3 +23,18 @@ export const getBlogsByAuthor = (author) =>
 
 export const likeBlog = (id) =>
   api.post(`/api/v1.0/blogsite/blog/${id}/like`);
+
+export const getTrendingBlogs = () =>
+  api.get("/api/v1.0/blogsite/blog/feed/trending");
+
+export const getFeaturedBlogs = () =>
+  api.get("/api/v1.0/blogsite/blog/feed/featured");
+
+export const getFollowSummary = (username) =>
+  api.get(`/api/v1.0/blogsite/blog/follow/${encodeURIComponent(username)}`);
+
+export const followUser = (username) =>
+  api.post(`/api/v1.0/blogsite/blog/follow/${encodeURIComponent(username)}`);
+
+export const unfollowUser = (username) =>
+  api.delete(`/api/v1.0/blogsite/blog/follow/${encodeURIComponent(username)}`);

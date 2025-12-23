@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { deleteBlog, getBlogById, likeBlog } from "../services/blogService";
+import { deleteBlog, getBlogById, likeBlog, getFollowSummary, followUser, unfollowUser } from "../services/blogService";
 import {
   Container,
   Typography,
@@ -31,6 +31,8 @@ export default function BlogDetail() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [likes, setLikes] = useState(0);
   const [liking, setLiking] = useState(false);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(false);
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -50,6 +52,21 @@ export default function BlogDetail() {
       fetchBlog();
     }
   }, [id]);
+
+  useEffect(() => {
+    const loadFollow = async () => {
+      if (!blog?.authorUsername) return;
+      try {
+        const res = await getFollowSummary(blog.authorUsername);
+        setFollowers(res.data.followers);
+        setFollowing(res.data.following);
+      } catch {
+        setFollowers(0);
+        setFollowing(false);
+      }
+    };
+    loadFollow();
+  }, [blog?.authorUsername]);
 
   const calculateReadingTime = (content) => {
     const wordsPerMinute = 200;
@@ -254,6 +271,9 @@ export default function BlogDetail() {
                     {formatDate(blog.createdAt)}
                   </Typography>
                 )}
+                <Typography sx={{ color: "#9CA3AF", fontSize: "13px" }}>
+                  {followers} followers
+                </Typography>
               </Box>
             </Box>
 
@@ -296,6 +316,30 @@ export default function BlogDetail() {
                   {likes} likes
                 </Typography>
               </Stack>
+              <Chip
+                label={following ? "Following" : "Follow"}
+                color={following ? "default" : "primary"}
+                onClick={async () => {
+                  if (!isAuthenticated()) {
+                    navigate("/login");
+                    return;
+                  }
+                  try {
+                    if (following) {
+                      await unfollowUser(blog.authorUsername);
+                      setFollowing(false);
+                      setFollowers((f) => Math.max(0, f - 1));
+                    } else {
+                      await followUser(blog.authorUsername);
+                      setFollowing(true);
+                      setFollowers((f) => f + 1);
+                    }
+                  } catch {
+                    // ignore errors for now
+                  }
+                }}
+                sx={{ cursor: "pointer" }}
+              />
               <Typography sx={{ color: "#9CA3AF", fontSize: "15px" }}>
                 {calculateReadingTime(blog.content)} min read
               </Typography>

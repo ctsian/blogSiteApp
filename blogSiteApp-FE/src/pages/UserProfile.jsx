@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getBlogsByAuthor } from "../services/blogService";
+import { getBlogsByAuthor, getFollowSummary, followUser, unfollowUser } from "../services/blogService";
 import {
   Container,
   Typography,
@@ -19,6 +19,8 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -33,6 +35,20 @@ export default function UserProfile() {
       }
     };
     if (username) fetch();
+  }, [username]);
+
+  useEffect(() => {
+    const loadFollow = async () => {
+      try {
+        const res = await getFollowSummary(username);
+        setFollowers(res.data.followers);
+        setFollowing(res.data.following);
+      } catch {
+        setFollowers(0);
+        setFollowing(false);
+      }
+    };
+    if (username) loadFollow();
   }, [username]);
 
   const stats = useMemo(() => {
@@ -63,7 +79,30 @@ export default function UserProfile() {
             <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
               <Chip label={`${stats.articleCount} articles`} />
               <Chip label={`${stats.totalLikes} likes`} />
+              <Chip label={`${followers} followers`} />
             </Stack>
+          </Box>
+          <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
+            <Chip
+              label={following ? "Following" : "Follow"}
+              color={following ? "default" : "primary"}
+              onClick={async () => {
+                try {
+                  if (following) {
+                    await unfollowUser(username);
+                    setFollowing(false);
+                    setFollowers((f) => Math.max(0, f - 1));
+                  } else {
+                    await followUser(username);
+                    setFollowing(true);
+                    setFollowers((f) => f + 1);
+                  }
+                } catch {
+                  // ignore for now
+                }
+              }}
+              sx={{ cursor: "pointer" }}
+            />
           </Box>
         </Box>
 

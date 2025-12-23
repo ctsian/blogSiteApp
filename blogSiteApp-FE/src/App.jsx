@@ -8,6 +8,7 @@ import EditBlog from "./pages/EditBlog";
 import UserProfile from "./pages/UserProfile";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HoverMenu from "./components/HoverMenu";
 import "./App.css";
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
     <BrowserRouter>
       <div className="app-container">
         <NavBar />
+        <HoverMenu />
         <Routes>
           <Route path="/blogs" element={<BlogList />} />
           <Route path="/blog/:id" element={<BlogDetail />} />
