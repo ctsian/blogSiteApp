@@ -40,6 +40,21 @@ public class BlogController {
         return ResponseEntity.ok(blogService.getAllBlogs());
     }
 
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(blogService.getBlogsByCategory(category));
+    }
+
+    @GetMapping("/author/{username}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByAuthor(@PathVariable String username) {
+        return ResponseEntity.ok(blogService.getBlogsByAuthor(username));
+    }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<BlogResponse> likeBlog(@PathVariable Long id) {
+        return ResponseEntity.ok(blogService.likeBlog(id));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<BlogResponse> getBlogById(@PathVariable Long id) {
         return ResponseEntity.ok(blogService.getBlogById(id));

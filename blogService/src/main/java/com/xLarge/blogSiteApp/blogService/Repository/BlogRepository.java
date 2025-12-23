@@ -7,4 +7,6 @@ import java.util.List;
 public interface BlogRepository extends JpaRepository<Blog, Long> {
 
     List<Blog> findByAuthor(String author);
+
+    List<Blog> findByCategoryIgnoreCase(String category);
 }

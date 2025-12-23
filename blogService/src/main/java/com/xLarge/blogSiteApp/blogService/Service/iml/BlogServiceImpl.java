@@ -28,8 +28,10 @@ public class BlogServiceImpl implements BlogService {
         Blog blog = new Blog();
         blog.setTitle(request.getTitle());
         blog.setContent(request.getContent());
+        blog.setCategory(request.getCategory());
         blog.setAuthor(author);
         blog.setCreatedAt(LocalDateTime.now());
+        blog.setLikes(0);
 
         Blog saved = blogRepository.save(blog);
 
@@ -63,6 +65,7 @@ public class BlogServiceImpl implements BlogService {
 
         blog.setTitle(request.getTitle());
         blog.setContent(request.getContent());
+        blog.setCategory(request.getCategory());
 
         return BlogMapper.toResponse(blogRepository.save(blog));
     }
@@ -78,5 +81,29 @@ public class BlogServiceImpl implements BlogService {
         }
 
         blogRepository.delete(blog);
+    }
+
+    @Override
+    public List<BlogResponse> getBlogsByCategory(String category) {
+        return blogRepository.findByCategoryIgnoreCase(category)
+                .stream()
+                .map(BlogMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BlogResponse> getBlogsByAuthor(String author) {
+        return blogRepository.findByAuthor(author)
+                .stream()
+                .map(BlogMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public BlogResponse likeBlog(Long id) {
+        Blog blog = blogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Blog not found"));
+        blog.setLikes(blog.getLikes() + 1);
+        return BlogMapper.toResponse(blogRepository.save(blog));
     }
 }

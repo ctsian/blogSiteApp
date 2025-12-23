@@ -15,16 +15,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+
                 .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/api/v1.0/blogsite/user/register",
-//                                "/api/v1.0/blogsite/user/login"
-//                        ).permitAll()
-//                        .anyRequest().authenticated()
-//                );
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();

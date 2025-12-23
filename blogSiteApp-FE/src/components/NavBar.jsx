@@ -29,14 +29,14 @@ export default function Navbar() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)"
       }}
     >
-      <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+      <Link to="/blogs" style={{ display: "flex", alignItems: "center" }}>
         <img src={XLargeLogo} alt="XLarge" height={32} style={{ cursor: "pointer" }} />
       </Link>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2.5 } }}>
         <Button
           component={Link}
-          to="/"
+          to="/blogs"
           sx={{
             color: "#242424",
             textTransform: "none",

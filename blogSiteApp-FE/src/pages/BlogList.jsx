@@ -1,20 +1,42 @@
 import { useEffect, useState } from "react";
-import { getBlogs } from "../services/blogService";
-import { Container, Typography, Box, Avatar, Chip } from "@mui/material";
+import { getBlogs, getBlogsByAuthor, getBlogsByCategory } from "../services/blogService";
+import { Container, Typography, Box, Avatar, Chip, TextField, Button, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Article, Person } from "@mui/icons-material";
+import { Article } from "@mui/icons-material";
+import { getUsername, isAuthenticated } from "../utils/authUtil";
 
 export default function BlogList() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoryInput, setCategoryInput] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [view, setView] = useState("all"); // all | mine
   const navigate = useNavigate();
 
   useEffect(() => {
-    getBlogs()
-      .then(res => setBlogs(res.data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        if (view === "mine" && getUsername()) {
+          const res = await getBlogsByAuthor(getUsername());
+          setBlogs(res.data);
+        } else if (categoryFilter.trim()) {
+          const res = await getBlogsByCategory(categoryFilter.trim());
+          setBlogs(res.data);
+        } else {
+          const res = await getBlogs();
+          setBlogs(res.data);
+        }
+      } catch (err) {
+        console.error(err);
+        setBlogs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetch();
+  }, [categoryFilter, view]);
 
   const calculateReadingTime = (content) => {
     const wordsPerMinute = 200;
@@ -77,11 +99,56 @@ export default function BlogList() {
               letterSpacing: "-0.02em"
             }}
           >
-            Latest Stories
+            {isAuthenticated() && getUsername() ? `Latest Stories for ${getUsername()}` : "Latest Stories"}
           </Typography>
           <Typography sx={{ color: "#6B6B6B", fontSize: "18px" }}>
             Discover and share knowledge
           </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} gap={2} sx={{ mt: 3 }}>
+            <TextField
+              placeholder="Filter by category"
+              value={categoryInput}
+              onChange={(e) => setCategoryInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setCategoryFilter(categoryInput);
+                }
+              }}
+              size="small"
+              sx={{
+                minWidth: { xs: "100%", sm: 260 },
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "10px",
+                  backgroundColor: "#ffffff",
+                }
+              }}
+            />
+            <Stack direction="row" gap={1}>
+              <Button
+                variant={view === "all" ? "contained" : "outlined"}
+                onClick={() => setView("all")}
+                sx={{ textTransform: "none", backgroundColor: view === "all" ? "#242424" : undefined, "&:hover": { backgroundColor: view === "all" ? "#000000" : undefined } }}
+              >
+                All
+              </Button>
+              {isAuthenticated() && (
+                <Button
+                  variant={view === "mine" ? "contained" : "outlined"}
+                  onClick={() => setView("mine")}
+                  sx={{ textTransform: "none", backgroundColor: view === "mine" ? "#242424" : undefined, "&:hover": { backgroundColor: view === "mine" ? "#000000" : undefined } }}
+                >
+                  My blogs
+                </Button>
+              )}
+              <Button
+                variant="text"
+                onClick={() => { setCategoryInput(""); setCategoryFilter(""); setView("all"); }}
+                sx={{ textTransform: "none" }}
+              >
+                Reset
+              </Button>
+            </Stack>
+          </Stack>
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -118,6 +185,12 @@ export default function BlogList() {
                 <Typography sx={{ color: "#242424", fontWeight: 500, fontSize: "15px" }}>
                   {blog.authorUsername || "Anonymous"}
                 </Typography>
+                {blog.category && (
+                  <>
+                    <Typography sx={{ color: "#9CA3AF", mx: 0.5 }}>·</Typography>
+                    <Chip label={blog.category} size="small" sx={{ backgroundColor: "#eef2ff", color: "#4338ca", height: 24 }} />
+                  </>
+                )}
                 {blog.createdAt && (
                   <>
                     <Typography sx={{ color: "#9CA3AF", mx: 0.5 }}>·</Typography>
@@ -129,6 +202,10 @@ export default function BlogList() {
                 <Typography sx={{ color: "#9CA3AF", mx: 0.5 }}>·</Typography>
                 <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
                   {calculateReadingTime(blog.content)} min read
+                </Typography>
+                <Typography sx={{ color: "#9CA3AF", mx: 0.5 }}>·</Typography>
+                <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
+                  {blog.likes ?? 0} likes
                 </Typography>
               </Box>
 

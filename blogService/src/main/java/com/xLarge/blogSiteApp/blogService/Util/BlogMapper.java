@@ -12,8 +12,10 @@ public class BlogMapper {
                 blog.getId(),
                 blog.getTitle(),
                 blog.getContent(),
+                blog.getCategory(),
                 blog.getAuthor(),
-                blog.getCreatedAt()
+                blog.getCreatedAt(),
+                blog.getLikes()
         );
     }
 }
