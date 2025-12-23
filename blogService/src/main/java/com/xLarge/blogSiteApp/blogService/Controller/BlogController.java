@@ -3,6 +3,7 @@ package com.xLarge.blogSiteApp.blogService.Controller;
 import com.xLarge.blogSiteApp.blogService.DTO.BlogCreateRequest;
 import com.xLarge.blogSiteApp.blogService.DTO.BlogResponse;
 import com.xLarge.blogSiteApp.blogService.DTO.BlogUpdateRequest;
+import com.xLarge.blogSiteApp.blogService.DTO.FollowSummaryResponse;
 import com.xLarge.blogSiteApp.blogService.Service.BlogService;
 
 import jakarta.validation.Valid;
@@ -38,6 +39,55 @@ public class BlogController {
     @GetMapping
     public ResponseEntity<List<BlogResponse>> getAllBlogs() {
         return ResponseEntity.ok(blogService.getAllBlogs());
+    }
+
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(blogService.getBlogsByCategory(category));
+    }
+
+    @GetMapping("/author/{username}")
+    public ResponseEntity<List<BlogResponse>> getBlogsByAuthor(@PathVariable String username) {
+        return ResponseEntity.ok(blogService.getBlogsByAuthor(username));
+    }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<BlogResponse> likeBlog(@PathVariable Long id) {
+        return ResponseEntity.ok(blogService.likeBlog(id));
+    }
+
+    @GetMapping("/feed/trending")
+    public ResponseEntity<List<BlogResponse>> getTrending() {
+        return ResponseEntity.ok(blogService.getTrendingBlogs());
+    }
+
+    @GetMapping("/feed/featured")
+    public ResponseEntity<List<BlogResponse>> getFeatured() {
+        String username = getCurrentUsername();
+        return ResponseEntity.ok(blogService.getFeaturedBlogs(username));
+    }
+
+    @PostMapping("/follow/{username}")
+    public ResponseEntity<Void> follow(@PathVariable String username) {
+        String current = getCurrentUsername();
+        blogService.followAuthor(current, username);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/follow/{username}")
+    public ResponseEntity<Void> unfollow(@PathVariable String username) {
+        String current = getCurrentUsername();
+        blogService.unfollowAuthor(current, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/follow/{username}")
+    public ResponseEntity<FollowSummaryResponse> followSummary(@PathVariable String username) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String current = auth != null ? auth.getName() : null;
+        long followers = blogService.countFollowers(username);
+        boolean following = current != null && blogService.isFollowing(current, username);
+        return ResponseEntity.ok(new FollowSummaryResponse(followers, following));
     }
 
     @GetMapping("/{id}")

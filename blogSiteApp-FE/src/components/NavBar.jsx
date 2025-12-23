@@ -1,16 +1,40 @@
-import { Box, Button, Typography } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { Box, Button, Typography, Chip } from "@mui/material";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { isAuthenticated, logout } from "../utils/authUtil";
+import { useState, useEffect } from "react";
 import XLargeLogo from "../assets/XLargeLogo.svg";
+import SearchBar from "./SearchBar";
 
 export default function Navbar() {
   const auth = isAuthenticated();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  const currentTab = searchParams.get("tab") || null;
+  const showSearch = location.pathname === "/blogs" && (currentTab === null || currentTab === "trending");
+
+  const searchValue = searchParams.get("q") || "";
+  const [searchLocal, setSearchLocal] = useState(searchValue);
+
+  useEffect(() => {
+    setSearchLocal(searchValue);
+  }, [searchValue]);
+
+  // debounce updating the URL param to reduce re-renders
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = { tab: "trending" };
+      if (searchLocal && searchLocal.length > 0) params.q = searchLocal;
+      setSearchParams(params);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchLocal, setSearchParams]);
 
   return (
     <Box
@@ -29,14 +53,19 @@ export default function Navbar() {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)"
       }}
     >
-      <Link to="/" style={{ display: "flex", alignItems: "center" }}>
+      <Link to="/blogs" style={{ display: "flex", alignItems: "center" }}>
         <img src={XLargeLogo} alt="XLarge" height={32} style={{ cursor: "pointer" }} />
       </Link>
-
+      {showSearch && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1, maxWidth: 600, mx: 2 }}>
+          <SearchBar value={searchLocal} onChange={(v) => setSearchLocal(v)} />
+          {searchValue ? <Chip label="Filtered" size="small" sx={{ bgcolor: "#eef2ff", color: "#4338ca" }} /> : null}
+        </Box>
+      )}
       <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2.5 } }}>
         <Button
           component={Link}
-          to="/"
+          to="/blogs"
           sx={{
             color: "#242424",
             textTransform: "none",

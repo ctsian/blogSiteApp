@@ -4,8 +4,11 @@ import Login from "./pages/Login";
 import BlogList from "./pages/BlogList";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
+import EditBlog from "./pages/EditBlog";
+import UserProfile from "./pages/UserProfile";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import HoverMenu from "./components/HoverMenu";
 import "./App.css";
 
 export default function App() {
@@ -13,9 +16,12 @@ export default function App() {
     <BrowserRouter>
       <div className="app-container">
         <NavBar />
+        {/* <HoverMenu /> */}
         <Routes>
-          <Route path="/" element={<BlogList />} />
+          <Route path="/blogs" element={<BlogList />} />
           <Route path="/blog/:id" element={<BlogDetail />} />
+          <Route path="/blog/:id/edit" element={<ProtectedRoute><EditBlog /></ProtectedRoute>} />
+          <Route path="/user/:username" element={<UserProfile />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/create" element={<ProtectedRoute>

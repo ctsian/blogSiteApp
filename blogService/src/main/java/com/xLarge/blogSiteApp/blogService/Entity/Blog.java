@@ -13,8 +13,10 @@ public class Blog {
 
     @Column(length = 10000)
     private String content;
+    private String category;
     private String author;
     private LocalDateTime createdAt;
+    private int likes = 0;
 
     public Long getId() {
         return id;
@@ -40,6 +42,14 @@ public class Blog {
         this.content = content;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getAuthor() {
         return author;
     }
@@ -54,5 +64,13 @@ public class Blog {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 }

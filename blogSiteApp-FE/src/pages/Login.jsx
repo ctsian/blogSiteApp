@@ -26,7 +26,7 @@ export default function Login() {
     
     try {
       await login(form);
-      navigate("/");
+      navigate("/blogs");
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {

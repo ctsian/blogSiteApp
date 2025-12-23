@@ -16,4 +16,22 @@ public interface BlogService {
     BlogResponse updateBlog(Long id, BlogUpdateRequest request, String username);
 
     void deleteBlog(Long id, String username);
+
+    List<BlogResponse> getBlogsByCategory(String category);
+
+    List<BlogResponse> getBlogsByAuthor(String author);
+
+    BlogResponse likeBlog(Long id);
+
+    List<BlogResponse> getTrendingBlogs();
+
+    List<BlogResponse> getFeaturedBlogs(String follower);
+
+    void followAuthor(String follower, String followed);
+
+    void unfollowAuthor(String follower, String followed);
+
+    long countFollowers(String username);
+
+    boolean isFollowing(String follower, String followed);
 }

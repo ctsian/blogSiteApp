@@ -13,14 +13,14 @@ import {
 import { Publish, ArrowBack } from "@mui/icons-material";
 
 export default function CreateBlog() {
-  const [blog, setBlog] = useState({ title: "", content: "" });
+  const [blog, setBlog] = useState({ title: "", content: "", category: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const submit = async () => {
-    if (!blog.title.trim() || !blog.content.trim()) {
-      setError("Please fill in both title and content");
+    if (!blog.title.trim() || !blog.content.trim() || !blog.category.trim()) {
+      setError("Please fill in title, content and category");
       return;
     }
 
@@ -29,7 +29,7 @@ export default function CreateBlog() {
     
     try {
       await createBlog(blog);
-      navigate("/");
+      navigate("/blogs");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create blog. Please try again.");
     } finally {
@@ -163,12 +163,32 @@ export default function CreateBlog() {
           />
 
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", pt: 2, borderTop: "1px solid rgba(0, 0, 0, 0.06)" }}>
-            <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
-              {wordCount} words
-            </Typography>
-            <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
-              {Math.ceil(wordCount / 200)} min read
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
+                {wordCount} words
+              </Typography>
+              <Typography sx={{ color: "#9CA3AF", fontSize: "14px" }}>
+                {Math.ceil(wordCount / 200)} min read
+              </Typography>
+            </Box>
+            <TextField
+              placeholder="Category (e.g. Tech, Travel)"
+              value={blog.category}
+              onChange={e => setBlog({ ...blog, category: e.target.value })}
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  fontSize: "15px",
+                  color: "#242424",
+                }
+              }}
+              sx={{
+                "& .MuiInputBase-input": {
+                  padding: 0,
+                }
+              }}
+            />
           </Box>
         </Box>
       </Container>

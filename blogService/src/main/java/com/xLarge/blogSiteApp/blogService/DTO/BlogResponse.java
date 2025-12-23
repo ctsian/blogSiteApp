@@ -7,16 +7,20 @@ public class BlogResponse {
     private Long id;
     private String title;
     private String content;
+    private String category;
     private String authorUsername;
     private LocalDateTime createdAt;
+    private int likes;
 
     public BlogResponse(Long id, String title, String content,
-                        String authorUsername, LocalDateTime createdAt) {
+                        String category, String authorUsername, LocalDateTime createdAt, int likes) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.category = category;
         this.authorUsername = authorUsername;
         this.createdAt = createdAt;
+        this.likes = likes;
     }
 
     public Long getId() {
@@ -43,6 +47,14 @@ public class BlogResponse {
         this.content = content;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public String getAuthorUsername() {
         return authorUsername;
     }
@@ -57,5 +69,13 @@ public class BlogResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
 }
