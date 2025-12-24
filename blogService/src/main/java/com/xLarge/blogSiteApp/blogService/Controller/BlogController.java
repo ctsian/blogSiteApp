@@ -26,7 +26,7 @@ public class BlogController {
         this.blogService = blogService;
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<BlogResponse> createBlog(
             @Valid @RequestBody BlogCreateRequest request) {
 
