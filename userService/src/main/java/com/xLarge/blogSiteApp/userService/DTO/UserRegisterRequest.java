@@ -45,4 +45,10 @@ public class UserRegisterRequest {
     public void setUserName(@NotBlank String userName) {
         this.userName = userName;
     }
+
+    public UserRegisterRequest(String userName, String emailId, String password) {
+        this.userName = userName;
+        this.emailId = emailId;
+        this.password = password;
+    }
 }

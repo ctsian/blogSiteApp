@@ -9,6 +9,9 @@ import com.xLarge.blogSiteApp.userService.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1.0/blogsite/user")
+@Slf4j
 public class UserServiceController {
 
+//    private static final Logger log= LoggerFactory.getLogger(UserServiceController.class);
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -37,20 +42,32 @@ public class UserServiceController {
 
     @PostMapping("/register")
     public ResponseEntity<UserRegisterResponse> registerUser(@Valid  @RequestBody UserRegisterRequest userRegisterRequest){
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(userRegisterRequest));
+        log.info("Received registration request for email: {}", userRegisterRequest.getEmailId());
+        log.debug("Registration payload: {}", userRegisterRequest);
+        UserRegisterResponse response = userService.registerUser(userRegisterRequest);
+
+        log.info("User registered successfully with ID: {}", response.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponse> login(@Valid @RequestBody UserLoginRequest loginRequest){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUserName(),
-                        loginRequest.getPassword()
-                )
-        );
+        log.info("Login attempt for username: {}", loginRequest.getUserName());
 
-        String token=jwtUtil.generateToken(loginRequest.getUserName());
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUserName(),
+                            loginRequest.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            log.error("Authentication failed for user: {}", loginRequest.getUserName(), e);
+            throw e;
+        }
 
+        String token = jwtUtil.generateToken(loginRequest.getUserName());
+        log.info("Login successful, token generated for user: {}", loginRequest.getUserName());
         return ResponseEntity.ok(new UserLoginResponse(token, loginRequest.getUserName()));
     }
 }
