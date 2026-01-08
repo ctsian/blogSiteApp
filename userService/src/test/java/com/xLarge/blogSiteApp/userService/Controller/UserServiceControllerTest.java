@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserServiceController.class)
-//@AutoConfigureMockMvc(addFilters = false) // Disable security filters for unit test
+@AutoConfigureMockMvc(addFilters = false) // Disable security filters for unit test
 class UserServiceControllerTest {
 
     @Autowired
@@ -44,7 +44,7 @@ class UserServiceControllerTest {
     @Test
     void testRegisterUser_Success() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest("testUser", "test@test.com", "password123");
-        UserRegisterResponse response = new UserRegisterResponse(1L, "testUser", "test@test.com");
+        UserRegisterResponse response = new UserRegisterResponse(1L,"test@test.com", "testUser");
 
         when(userService.registerUser(any(UserRegisterRequest.class))).thenReturn(response);
 
